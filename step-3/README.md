@@ -35,7 +35,7 @@ import { ListGroupItem } from 'react-bootstrap';
 ```javascript
 export class FollowListItem extends Component {
   static propType = {
-    user: PropTypes.object,
+    user: PropTypes.any,
     onClick: PropTypes.func,
   };
 }
@@ -126,22 +126,6 @@ export class FollowListItem extends Component {
   // ...
     
   static filter = data => filter(FollowListItem.fragments.user, data);
-  
-  // ...
-}
-```
-
-- And after that, we will change our propTypes declaration and use the `propType` util
-  to get a validator for the `user` prop.
- 
-```javascript
-export class FollowListItem extends Component {
-  // ...
-    
-  static propType = {
-    user: propType(FollowListItem.fragments.user),
-    onClick: PropTypes.func,
-  };
   
   // ...
 }
@@ -321,6 +305,8 @@ const ME_QUERY = gql`
             }
         }
     }
+    ${FollowList.fragments.user}
+
 `;
 ```
 
@@ -328,18 +314,13 @@ const ME_QUERY = gql`
   use a helper function from `react-apollo` package, called `graphql`. It does a similar work as Redux's `connect` 
   function. You will provide it with a query, options, and possibly a "map to props" function, and it will return a function
   that when called with the `App` component, will wrap it and return a container component that can be used as any other react
-  component. Note that we need to give our used fragments as part of the query options. We are doing that using 
-  `getFragmentDefinitions` function from `apollo-client` package. 
+  component. Note that we need to give our used fragments as part of the query options. 
   
 ```javascript
 import { graphql } from 'react-apollo';
-import { getFragmentDefinitions } from 'apollo-client';
 
 // ...
-
-const fragmentDependencies = getFragmentDefinitions(FollowList.fragments.user);
-const options = { fragments: fragmentDependencies };
-const AppWithData = graphql(ME_QUERY, { options })(App);
+const AppWithData = graphql(ME_QUERY)(App);
 
 export default AppWithData;
 ```
@@ -404,10 +385,12 @@ ReactDOM.render(
 );
 ```
 
-- To create our client, we will import `ApolloClient` and `createNetworkInterface` from `apollo-client` package.
+- To create our client.
 
 ```javascript
-import {ApolloClient, createNetworkInterface} from 'apollo-client';
+import { ApolloClient } from 'apollo-client';
+import { HttpLink } from 'apollo-link-http';
+import { InMemoryCache } from 'apollo-cache-inmemory';
 ```
 
 - Apollo client is not tied into a specific transport and you can create whatever network interface you would like as long
@@ -416,8 +399,10 @@ import {ApolloClient, createNetworkInterface} from 'apollo-client';
   api server url which is `'/graphql'`.
 
 ```javascript
-const networkInterface = createNetworkInterface({uri: '/graphql'});
-const client = new ApolloClient({networkInterface});
+const client = new ApolloClient({
+  link: new HttpLink(),
+  cache: new InMemoryCache()
+});
 ```
 
 - In order to get our components to use this client at whatever level in our view tree, we will use `ApolloProvider` from
