@@ -5,7 +5,7 @@
     "server": "cd server && npm run watch",
     "web": "cd client && npm start",
     "start": "concurrently \"npm run web\" \"npm run server\"",
-    "postinstall": "(cd client && npm install) && (cd server && npm install)"
+    "postinstall": "(cd client && yarn install) && (cd server && yarn install)"
   },
   "repository": {
     "type": "git",
