@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Grid, Row, Col, } from 'react-bootstrap';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { getFragmentDefinitions } from 'apollo-client';
 import logo from './logo.svg';
 import './App.css';
 import { FollowList } from './components/FollowList';
@@ -45,10 +44,9 @@ const ME_QUERY = gql`
             }
         }
     }
+    ${FollowList.fragments.user}
 `;
 
-const fragmentDependencies = getFragmentDefinitions(FollowList.fragments.user);
-const options = { fragments: fragmentDependencies };
-const AppWithData = graphql(ME_QUERY, { options })(App);
+const AppWithData = graphql(ME_QUERY)(App);
 
 export default AppWithData;
